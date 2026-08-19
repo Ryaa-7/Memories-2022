@@ -35,49 +35,53 @@ def configure_cloudinary():
         return False
 
 
-@st.cache_data(ttl=600, show_spinner=False)
+import cloudinary.search
+
+
+@st.cache_data(ttl=300, show_spinner=False)
 def fetch_media(folder: str):
-    """Ambil semua foto & video dari folder Cloudinary. Return (images, videos)."""
+    """Ambil foto & video dari Cloudinary.
+    Strategi: pakai Search API (paling andal untuk folder). Kalau folder kosong,
+    fallback ke SEMUA aset di akun (kecuali contoh bawaan 'samples')."""
     images, videos = [], []
+    diag = {"method": "", "folder_count": 0, "all_count": 0, "error": ""}
 
-    # Foto
-    try:
-        next_cursor = None
-        while True:
-            res = cloudinary.api.resources(
-                type="upload",
-                resource_type="image",
-                prefix=folder,
-                max_results=500,
-                next_cursor=next_cursor,
-            )
-            for r in res.get("resources", []):
-                images.append(r["secure_url"])
-            next_cursor = res.get("next_cursor")
-            if not next_cursor:
-                break
-    except Exception as e:
-        st.session_state["_img_err"] = str(e)
+    def run_search(expr):
+        imgs, vids = [], []
+        try:
+            cursor = None
+            while True:
+                s = cloudinary.search.Search().expression(expr).max_results(500).with_field("resource_type")
+                if cursor:
+                    s = s.next_cursor(cursor)
+                res = s.execute()
+                for r in res.get("resources", []):
+                    url = r.get("secure_url", "")
+                    if r.get("resource_type") == "video":
+                        vids.append(url)
+                    else:
+                        imgs.append(url)
+                cursor = res.get("next_cursor")
+                if not cursor:
+                    break
+        except Exception as e:
+            diag["error"] = str(e)
+        return imgs, vids
 
-    # Video
-    try:
-        next_cursor = None
-        while True:
-            res = cloudinary.api.resources(
-                type="upload",
-                resource_type="video",
-                prefix=folder,
-                max_results=500,
-                next_cursor=next_cursor,
-            )
-            for r in res.get("resources", []):
-                videos.append(r["secure_url"])
-            next_cursor = res.get("next_cursor")
-            if not next_cursor:
-                break
-    except Exception:
-        pass
+    # 1) Cari di dalam folder (asset_folder ATAU public_id prefix)
+    expr_folder = f'asset_folder="{folder}" OR asset_folder="{folder}/*" OR public_id:{folder}/*'
+    images, videos = run_search(expr_folder)
+    diag["folder_count"] = len(images) + len(videos)
+    diag["method"] = "folder"
 
+    # 2) Fallback: kalau folder kosong, ambil semua kecuali samples bawaan
+    if diag["folder_count"] == 0:
+        expr_all = '-public_id:samples/* AND -folder:samples'
+        images, videos = run_search(expr_all)
+        diag["all_count"] = len(images) + len(videos)
+        diag["method"] = "all (fallback)"
+
+    st.session_state["_diag"] = diag
     return images, videos
 
 
@@ -196,10 +200,19 @@ with st.spinner("Memuat kenangan..."):
     images, videos = fetch_media(CLOUD_FOLDER)
 
 if not images and not videos:
-    st.info("Belum ada media ditemukan di folder Cloudinary '%s'. "
-            "Upload foto dulu, lalu refresh." % CLOUD_FOLDER)
-    if st.session_state.get("_img_err"):
-        st.caption("Detail: " + st.session_state["_img_err"])
+    st.info("Belum ada media ditemukan. Diagnostik di bawah membantu cari tahu penyebabnya.")
+    diag = st.session_state.get("_diag", {})
+    st.code(
+        "folder dicari : %s\n"
+        "ketemu di folder : %s\n"
+        "ketemu semua (fallback) : %s\n"
+        "error : %s"
+        % (CLOUD_FOLDER, diag.get("folder_count"), diag.get("all_count"),
+           diag.get("error") or "(tidak ada)"),
+        language="text",
+    )
+    st.caption("Kalau 'error' berisi pesan, kirim ke chat. Kalau semua 0 tanpa error, "
+               "berarti foto belum benar-benar ada di akun ini atau masih diproses.")
     st.stop()
 
 
