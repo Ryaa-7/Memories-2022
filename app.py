@@ -230,7 +230,7 @@ if not images and not videos:
 # ------------------------------------------------------------
 #  Slideshow otomatis fullscreen (Ken Burns + fade)
 # ------------------------------------------------------------
-st.markdown('<div class="section-title">✦ Slideshow ✦</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-title">✦ Slideshow · v2 ✦</div>', unsafe_allow_html=True)
 
 slides_json = json.dumps([optimized(u, 1600) for u in images])
 
