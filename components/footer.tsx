@@ -14,7 +14,7 @@ export function Footer() {
       <div className="glass rounded-[2rem] px-6 py-12 shadow-lg shadow-[oklch(0.72_0.11_240)]/10">
         <Heart className="mx-auto h-8 w-8 animate-float-slow fill-primary text-primary" />
         <p className="mx-auto mt-5 max-w-md text-balance font-serif text-2xl font-medium leading-snug text-foreground md:text-3xl">
-          Made with love, for the memories we&apos;ll never forget.
+          Made with CAPEK njir, for the memories we&apos;ll never forget.
         </p>
 
         <div className="mt-7 flex justify-center gap-3">
