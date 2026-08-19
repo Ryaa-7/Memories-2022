@@ -10,7 +10,7 @@ import { useMemories } from '@/lib/use-memories'
 export function FeaturedMemory() {
   const [loved, setLoved] = useState(true)
   const { photos } = useMemories()
-  const featuredSrc = photos[1]?.src || photos[0]?.src || '/memories/featured.png'
+  const featuredSrc = 'https://res.cloudinary.com/e3kwzop7/image/upload/v1787128345/IMG-20230829-WA0016.jpg'
 
   return (
     <section id="about" className="relative mx-auto max-w-6xl scroll-mt-24 px-5 py-24">
@@ -47,16 +47,16 @@ export function FeaturedMemory() {
           <div className="flex flex-wrap justify-center gap-4 md:justify-start">
             <span className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground">
               <Calendar className="h-4 w-4 text-primary" />
-              December 31, 2024
+              Agustus 2022
             </span>
             <span className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground">
               <MapPin className="h-4 w-4 text-primary" />
-              By the old lighthouse
+              UMN
             </span>
           </div>
 
           <h3 className="mt-5 text-balance font-serif text-3xl font-semibold leading-tight text-foreground md:text-4xl">
-            The night we wrote our wishes in the sparks
+            Masuk Pagi, Pulang Diusir Satpam
           </h3>
 
           <p className="mx-auto mt-4 max-w-md text-pretty leading-relaxed text-muted-foreground md:mx-0">
