@@ -56,7 +56,7 @@ export function Hero() {
         </span>
 
         <h1 className="text-balance font-serif text-6xl font-semibold leading-[0.95] tracking-tight text-white text-glow drop-shadow-sm sm:text-7xl md:text-8xl">
-          Our Memories
+          NGOBOK
         </h1>
 
         <p className="mx-auto mt-6 max-w-xl text-pretty text-lg font-light leading-relaxed text-white/90 md:text-xl">
