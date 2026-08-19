@@ -148,22 +148,22 @@ export const timeline: TimelineEntry[] = [
   },
   {
     year: '2023',
-    title: 'Beautiful Moments',
+    title: 'TURU',
     description: 'A year of small joys we learned to treasure.',
   },
   {
     year: '2024',
-    title: 'More Adventures',
+    title: 'NGOBOK',
     description: 'New places, new stories, the same wonderful company.',
   },
   {
     year: '2025',
-    title: 'Unforgettable Memories',
+    title: 'TURU',
     description: 'The days we will tell stories about for years.',
   },
   {
     year: '2026',
-    title: 'Still Making Memories',
+    title: 'LULUS ANJAY!!!',
     description: 'And the story is only just beginning.',
   },
 ]
