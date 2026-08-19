@@ -107,80 +107,96 @@ def thumb(url: str, w: int = 600) -> str:
 
 
 # ------------------------------------------------------------
-#  Styling global (dark cinematic)
+#  Styling global (soft blue playful)
 # ------------------------------------------------------------
 st.markdown("""
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700&family=Quicksand:wght@400;500;600;700&display=swap');
+
     #MainMenu, footer, header {visibility: hidden;}
     .stApp {
-        background: radial-gradient(ellipse at top, #14141c 0%, #0a0a0f 55%, #050507 100%);
+        background:
+          radial-gradient(circle at 15% 20%, #d6ecff 0%, transparent 40%),
+          radial-gradient(circle at 85% 15%, #e5dbff 0%, transparent 42%),
+          radial-gradient(circle at 50% 100%, #cdeffd 0%, transparent 55%),
+          linear-gradient(160deg, #eaf6ff 0%, #f3f0ff 50%, #eafaff 100%);
+        background-attachment: fixed;
     }
     .block-container {padding-top: 0 !important; max-width: 1400px;}
 
-    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Inter:wght@300;400;500&display=swap');
+    /* Bentuk lucu mengambang di latar */
+    .stApp::before, .stApp::after {
+        content:''; position:fixed; border-radius:50%; z-index:0; pointer-events:none;
+        filter: blur(2px); opacity:.5;
+    }
+    .stApp::before {
+        width:180px; height:180px; left:4%; top:30%;
+        background: radial-gradient(circle at 30% 30%, #bfe3ff, #93c9ff);
+        animation: floatA 9s ease-in-out infinite;
+    }
+    .stApp::after {
+        width:120px; height:120px; right:6%; top:60%;
+        background: radial-gradient(circle at 30% 30%, #e3d5ff, #b9a4ff);
+        animation: floatB 11s ease-in-out infinite;
+    }
+    @keyframes floatA { 0%,100%{transform:translateY(0) rotate(0)} 50%{transform:translateY(-30px) rotate(12deg)} }
+    @keyframes floatB { 0%,100%{transform:translateY(0) rotate(0)} 50%{transform:translateY(28px) rotate(-14deg)} }
 
     .hero {
         text-align: center;
-        padding: 5.5rem 1rem 2.5rem 1rem;
-        animation: heroIn 1.6s cubic-bezier(.2,.7,.2,1) both;
+        padding: 4.5rem 1rem 1.5rem 1rem;
+        position: relative; z-index: 1;
+        animation: heroIn 1.1s cubic-bezier(.34,1.56,.64,1) both;
     }
     @keyframes heroIn {
-        from {opacity:0; transform: translateY(24px);}
-        to   {opacity:1; transform: translateY(0);}
+        from {opacity:0; transform: translateY(30px) scale(.9);}
+        to   {opacity:1; transform: translateY(0) scale(1);}
     }
     .hero h1 {
-        font-family: 'Cormorant Garamond', serif;
-        font-size: clamp(3.2rem, 9vw, 6.5rem);
-        font-weight: 600;
-        letter-spacing: .18em;
-        color: #f4f1ea;
+        font-family: 'Baloo 2', cursive;
+        font-size: clamp(3rem, 9vw, 6rem);
+        font-weight: 700;
+        letter-spacing: .04em;
+        background: linear-gradient(120deg, #5aa9ff, #8f7bff 45%, #57c7ff);
+        -webkit-background-clip: text; background-clip: text;
+        -webkit-text-fill-color: transparent;
         margin: 0;
-        text-shadow: 0 0 40px rgba(200,180,150,.25);
+        animation: wobble 4s ease-in-out infinite;
+        display: inline-block;
     }
+    @keyframes wobble { 0%,100%{transform:rotate(-1.5deg)} 50%{transform:rotate(1.5deg)} }
     .hero .sub {
-        font-family: 'Inter', sans-serif;
-        font-weight: 300;
-        letter-spacing: .42em;
+        font-family: 'Quicksand', sans-serif;
+        font-weight: 600;
+        letter-spacing: .25em;
         text-transform: uppercase;
-        font-size: clamp(.7rem, 2vw, .95rem);
-        color: #b8a888;
-        margin-top: 1.2rem;
+        font-size: clamp(.68rem, 2vw, .9rem);
+        color: #6c8bd6;
+        margin-top: 1rem;
     }
     .hero .line {
-        width: 60px; height: 1px;
-        background: linear-gradient(90deg, transparent, #b8a888, transparent);
-        margin: 1.8rem auto 0 auto;
+        width: 90px; height: 5px; border-radius: 5px;
+        background: linear-gradient(90deg, #7fc4ff, #b3a4ff);
+        margin: 1.4rem auto 0 auto;
+        animation: stretch 3s ease-in-out infinite;
     }
+    @keyframes stretch { 0%,100%{width:90px} 50%{width:140px} }
 
     .section-title {
-        font-family: 'Cormorant Garamond', serif;
-        font-size: 1.9rem;
-        color: #e8e2d5;
-        letter-spacing: .18em;
+        font-family: 'Baloo 2', cursive;
+        font-size: 2rem;
+        color: #5a7fd6;
+        letter-spacing: .04em;
         text-align: center;
-        margin: 4.5rem 0 2.2rem 0;
-        font-weight: 400;
-        position: relative;
+        margin: 4rem 0 2rem 0;
+        font-weight: 700;
+        position: relative; z-index: 1;
+        animation: bobble 3.5s ease-in-out infinite;
     }
+    @keyframes bobble { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
 
-    .stButton>button, .stDownloadButton>button {
-        background: rgba(184,168,136,.08);
-        border: 1px solid rgba(184,168,136,.3);
-        color: #d8cdb5;
-        border-radius: 40px;
-        padding: .5rem 1.6rem;
-        font-family: 'Inter', sans-serif;
-        letter-spacing: .12em;
-        text-transform: uppercase;
-        font-size: .72rem;
-        transition: all .3s ease;
-    }
-    .stButton>button:hover {
-        background: rgba(184,168,136,.18);
-        border-color: #b8a888;
-        color: #fff;
-    }
-    div[data-testid="stImage"] img {border-radius: 8px;}
+    div[data-testid="stImage"] img {border-radius: 18px;}
+    [data-testid="stVideo"] {border-radius: 18px; overflow:hidden; box-shadow: 0 14px 40px rgba(120,150,220,.25);}
 </style>
 """, unsafe_allow_html=True)
 
@@ -230,7 +246,7 @@ if not images and not videos:
 # ------------------------------------------------------------
 #  Slideshow otomatis fullscreen (Ken Burns + fade)
 # ------------------------------------------------------------
-st.markdown('<div class="section-title">✦ Slideshow · v2 ✦</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-title">✦ Slideshow ✦</div>', unsafe_allow_html=True)
 
 slides_json = json.dumps([optimized(u, 1600) for u in images])
 
@@ -251,54 +267,53 @@ slideshow_html = """
 <style>
   #show {
     position: relative; width: 100%; height: 660px;
-    background:#000; border-radius: 18px; overflow: hidden;
-    box-shadow: 0 40px 100px rgba(0,0,0,.7), 0 0 0 1px rgba(184,168,136,.12);
+    background:#dbeeff; border-radius: 28px; overflow: hidden;
+    box-shadow: 0 30px 70px rgba(120,160,230,.35), 0 0 0 4px #fff, 0 0 0 6px rgba(150,190,255,.4);
   }
   #stage { width:100%; height:100%; position:relative; }
   #stage img {
     position:absolute; top:0; left:0; width:100%; height:100%;
     object-fit: cover; opacity:0;
-    transition: opacity 1.8s cubic-bezier(.4,0,.2,1);
+    transition: opacity 1.3s cubic-bezier(.34,1.2,.64,1);
     will-change: opacity, transform;
   }
-  #stage img.active { opacity:1; animation: ken 9s ease-out forwards; }
+  #stage img.active { opacity:1; animation: ken 8s ease-out forwards; }
   @keyframes ken {
     0%   { transform: scale(1.05) translate(1%, 1%); }
-    100% { transform: scale(1.18) translate(-2%, -2%); }
+    100% { transform: scale(1.16) translate(-2%, -2%); }
   }
   #vignette {
     position:absolute; inset:0; pointer-events:none; z-index:2;
-    background:
-      radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.5) 100%),
-      linear-gradient(to top, rgba(0,0,0,.55), transparent 45%);
+    background: linear-gradient(to top, rgba(70,110,180,.35), transparent 42%);
   }
   #controls {
-    position:absolute; bottom:30px; left:50%; transform:translateX(-50%);
+    position:absolute; bottom:26px; left:50%; transform:translateX(-50%);
     display:flex; gap:10px; z-index:6; opacity:0; transition:opacity .4s;
-    background: rgba(12,12,18,.45); backdrop-filter: blur(14px);
-    padding: 9px 14px; border-radius: 50px; border:1px solid rgba(184,168,136,.28);
+    background: rgba(255,255,255,.75); backdrop-filter: blur(14px);
+    padding: 9px 14px; border-radius: 50px; border:2px solid rgba(150,190,255,.6);
+    box-shadow: 0 8px 24px rgba(120,160,230,.3);
   }
   #show:hover #controls { opacity:1; }
   #controls button {
-    background:transparent; border:none; color:#e8ddc5;
+    background:transparent; border:none; color:#4a7ad0;
     font-size: 20px; cursor:pointer; width:40px; height:40px;
     border-radius:50%; transition: all .25s; display:flex; align-items:center; justify-content:center;
   }
-  #controls button:hover { background: rgba(184,168,136,.28); color:#fff; transform: scale(1.12); }
+  #controls button:hover { background: #7fc4ff; color:#fff; transform: scale(1.18) rotate(-6deg); }
   #dots {
     position:absolute; bottom:14px; left:50%; transform:translateX(-50%);
     display:flex; gap:6px; z-index:5;
   }
-  #dots span { width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,.3); transition:all .3s; }
-  #dots span.on { background:#e8ddc5; width:22px; border-radius:3px; }
-  #progress { position:absolute; top:0; left:0; width:100%; height:3px; background:rgba(255,255,255,.06); z-index:4;}
-  #bar { height:100%; width:0%; background: linear-gradient(90deg,#b8a888,#f0e6cf); box-shadow:0 0 12px rgba(184,168,136,.6); }
+  #dots span { width:7px; height:7px; border-radius:50%; background:rgba(255,255,255,.6); transition:all .3s; }
+  #dots span.on { background:#7fc4ff; width:24px; border-radius:4px; }
+  #progress { position:absolute; top:0; left:0; width:100%; height:5px; background:rgba(255,255,255,.35); z-index:4;}
+  #bar { height:100%; width:0%; background: linear-gradient(90deg,#7fc4ff,#b3a4ff); box-shadow:0 0 12px rgba(130,180,255,.7); }
   #caption {
-    position:absolute; top:24px; left:28px; z-index:5;
-    font-family:'Inter',sans-serif; font-size:.72rem; letter-spacing:.28em;
-    color:#e8ddc5; font-weight:300;
-    background:rgba(12,12,18,.4); backdrop-filter:blur(8px);
-    padding:6px 16px; border-radius:30px; border:1px solid rgba(184,168,136,.2);
+    position:absolute; top:22px; left:24px; z-index:5;
+    font-family:'Quicksand',sans-serif; font-weight:700; font-size:.78rem; letter-spacing:.15em;
+    color:#4a7ad0;
+    background:rgba(255,255,255,.8); backdrop-filter:blur(8px);
+    padding:7px 16px; border-radius:30px; border:2px solid rgba(150,190,255,.5);
   }
 </style>
 <script>
@@ -368,53 +383,59 @@ grid_html = """
   @media (max-width: 640px){ #grid { columns: 2 150px; column-gap: 12px; } }
   #grid .cell {
     break-inside: avoid; margin-bottom: 18px; position:relative;
-    border-radius: 14px; overflow:hidden; cursor:pointer;
-    opacity:0; transform: translateY(30px) scale(.97);
-    animation: rise .8s cubic-bezier(.2,.7,.2,1) forwards;
-    box-shadow: 0 10px 30px rgba(0,0,0,.3);
+    border-radius: 20px; overflow:hidden; cursor:pointer;
+    opacity:0; transform: translateY(34px) scale(.9) rotate(-2deg);
+    animation: rise .8s cubic-bezier(.34,1.56,.64,1) forwards;
+    box-shadow: 0 12px 30px rgba(120,160,230,.22);
+    border: 3px solid #fff;
   }
-  @keyframes rise { to {opacity:1; transform:translateY(0) scale(1);} }
+  @keyframes rise { to {opacity:1; transform:translateY(0) scale(1) rotate(0);} }
   #grid img {
     width:100%; display:block;
-    transition: transform .8s cubic-bezier(.2,.7,.2,1), filter .6s;
-    filter: grayscale(20%) brightness(.9) contrast(1.02);
+    transition: transform .6s cubic-bezier(.34,1.4,.64,1), filter .5s;
   }
-  #grid .cell:hover img { transform: scale(1.12); filter: grayscale(0) brightness(1.08) contrast(1.05); }
+  #grid .cell:hover { animation: jiggle .5s ease; }
+  @keyframes jiggle { 0%,100%{transform:rotate(0)} 25%{transform:rotate(1.5deg) scale(1.02)} 75%{transform:rotate(-1.5deg) scale(1.02)} }
+  #grid .cell:hover img { transform: scale(1.1); }
   #grid .cell::after {
-    content:'\\2197'; position:absolute; top:12px; right:14px;
-    color:#fff; font-size:18px; opacity:0; transform:translateY(-6px);
-    transition: all .4s; z-index:2; text-shadow:0 2px 8px rgba(0,0,0,.5);
+    content:'\\2661'; position:absolute; top:10px; right:14px;
+    color:#fff; font-size:22px; opacity:0; transform:scale(0) rotate(-30deg);
+    transition: all .4s cubic-bezier(.34,1.56,.64,1); z-index:2; text-shadow:0 2px 8px rgba(80,120,200,.5);
   }
   #grid .cell::before {
     content:''; position:absolute; inset:0; z-index:1;
-    background: linear-gradient(to top, rgba(184,168,136,.3), transparent 50%);
+    background: linear-gradient(to top, rgba(120,170,255,.4), transparent 55%);
     opacity:0; transition: opacity .5s;
   }
-  #grid .cell:hover::after { opacity:1; transform:translateY(0); }
+  #grid .cell:hover::after { opacity:1; transform:scale(1) rotate(0); }
   #grid .cell:hover::before { opacity:1; }
 
   #lightbox {
     display:none; position:fixed; inset:0; z-index:9999;
-    background: rgba(5,5,7,.96); backdrop-filter: blur(10px);
+    background: rgba(210,232,255,.85); backdrop-filter: blur(14px);
     align-items:center; justify-content:center;
     opacity:0; transition: opacity .35s;
   }
   #lightbox.on { display:flex; opacity:1; }
   #lbWrap { position:relative; max-width:90%; max-height:90%; display:flex; flex-direction:column; align-items:center; }
-  #lbImg { max-width:100%; max-height:84vh; border-radius:12px; box-shadow:0 30px 100px rgba(0,0,0,.8); }
-  #lbImg.anim { animation: pop .45s cubic-bezier(.2,.7,.2,1); }
-  @keyframes pop { from{opacity:0; transform:scale(.92);} to{opacity:1; transform:scale(1);} }
-  #lbCount { margin-top:16px; font-family:'Inter',sans-serif; color:#b8a888; letter-spacing:.25em; font-size:.72rem; }
-  #lbClose { position:fixed; top:24px; right:36px; color:#e8ddc5; font-size:40px; cursor:pointer; z-index:10001; transition:transform .25s;}
-  #lbClose:hover { transform:rotate(90deg); }
+  #lbImg { max-width:100%; max-height:82vh; border-radius:22px; border:5px solid #fff; box-shadow:0 30px 80px rgba(90,130,210,.5); }
+  #lbImg.anim { animation: pop .5s cubic-bezier(.34,1.56,.64,1); }
+  @keyframes pop { from{opacity:0; transform:scale(.8) rotate(-3deg);} to{opacity:1; transform:scale(1) rotate(0);} }
+  #lbCount { margin-top:16px; font-family:'Quicksand',sans-serif; font-weight:700; color:#4a7ad0; letter-spacing:.2em; font-size:.8rem;
+    background:#fff; padding:6px 18px; border-radius:30px; box-shadow:0 6px 18px rgba(120,160,230,.3); }
+  #lbClose { position:fixed; top:24px; right:36px; color:#fff; background:#7fc4ff; font-size:26px; cursor:pointer; z-index:10001;
+    width:48px; height:48px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    transition:transform .3s; box-shadow:0 6px 18px rgba(120,160,230,.4);}
+  #lbClose:hover { transform:rotate(180deg) scale(1.1); }
   #lbPrev, #lbNext {
     position:fixed; top:50%; transform:translateY(-50%); z-index:10001;
-    color:#e8ddc5; font-size:56px; cursor:pointer; user-select:none;
-    width:70px; height:70px; display:flex; align-items:center; justify-content:center;
-    border-radius:50%; transition: all .25s;
+    color:#fff; background:#7fc4ff; font-size:34px; cursor:pointer; user-select:none;
+    width:64px; height:64px; display:flex; align-items:center; justify-content:center;
+    border-radius:50%; transition: all .25s; box-shadow:0 8px 20px rgba(120,160,230,.4);
   }
   #lbPrev { left:24px; } #lbNext { right:24px; }
-  #lbPrev:hover, #lbNext:hover { background:rgba(184,168,136,.2); transform:translateY(-50%) scale(1.1); }
+  #lbPrev:hover { background:#b3a4ff; transform:translateY(-50%) scale(1.15) translateX(-4px); }
+  #lbNext:hover { background:#b3a4ff; transform:translateY(-50%) scale(1.15) translateX(4px); }
   @media (max-width:640px){ #lbPrev{left:6px;} #lbNext{right:6px;} #lbClose{right:16px;} }
 </style>
 <script>
@@ -467,8 +488,8 @@ if videos:
 #  Footer
 # ------------------------------------------------------------
 st.markdown("""
-<div style="text-align:center; padding:3rem 0 2rem 0; font-family:'Inter',sans-serif;
-     color:#5a5548; letter-spacing:.25em; font-size:.7rem; text-transform:uppercase;">
-    Made with love &middot; UMN 2022
+<div style="text-align:center; padding:3.5rem 0 2.5rem 0; font-family:'Quicksand',sans-serif;
+     color:#7a9bd6; letter-spacing:.2em; font-size:.8rem; font-weight:600; position:relative; z-index:1;">
+    ♡ Made with love &middot; UMN 2022 ♡
 </div>
 """, unsafe_allow_html=True)
