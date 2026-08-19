@@ -2,20 +2,32 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
-import { Gift, X, Heart } from 'lucide-react'
+import { Gift, X, Heart, ChevronLeft, ChevronRight } from 'lucide-react'
 
-const FAVORITE_SRC =
-  'https://res.cloudinary.com/e3kwzop7/image/upload/v1787128022/1678170046694.jpg'
-const FAVORITE_CAPTION = 'Dita tidur pada saat kelas online database'
+// Daftar foto favorit. Tambah/ubah di sini.
+const FAVORITES = [
+  {
+    src: 'https://res.cloudinary.com/e3kwzop7/image/upload/v1787128022/1678170046694.jpg',
+    caption: 'Dita tidur pada saat kelas online database',
+  },
+  {
+    src: 'https://res.cloudinary.com/e3kwzop7/image/upload/v1787142300/WhatsApp_Image_2026-08-19_at_19.20.55.jpg',
+    caption: 'Lawrens Ngorok di kelas',
+  },
+]
 
 export function FavoriteGift() {
   const [open, setOpen] = useState(false)
+  const [i, setI] = useState(0)
+
+  const move = (dir: number) => setI((p) => (p + dir + FAVORITES.length) % FAVORITES.length)
+  const fav = FAVORITES[i]
 
   return (
     <>
       {/* Tombol kado mengambang */}
       <button
-        onClick={() => setOpen(true)}
+        onClick={() => { setI(0); setOpen(true) }}
         aria-label="Buka foto favorit"
         className="group fixed bottom-6 right-6 z-40 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-[oklch(0.72_0.11_240)] to-[oklch(0.65_0.13_275)] text-white shadow-lg shadow-[oklch(0.6_0.12_255)]/40 transition-transform duration-300 hover:scale-110 animate-wiggle"
       >
@@ -46,22 +58,43 @@ export function FavoriteGift() {
 
             <div className="relative aspect-[3/4] w-full bg-[oklch(0.92_0.03_240)]">
               <Image
-                src={FAVORITE_SRC}
-                alt={FAVORITE_CAPTION}
+                key={fav.src}
+                src={fav.src}
+                alt={fav.caption}
                 fill
                 unoptimized
-                className="object-cover"
+                className="object-cover animate-fade-in"
               />
+
+              {/* Navigasi geser (muncul jika lebih dari 1 foto) */}
+              {FAVORITES.length > 1 && (
+                <>
+                  <button
+                    onClick={() => move(-1)}
+                    aria-label="Sebelumnya"
+                    className="absolute left-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 text-[oklch(0.5_0.1_255)] shadow transition hover:bg-white hover:scale-110"
+                  >
+                    <ChevronLeft className="h-5 w-5" />
+                  </button>
+                  <button
+                    onClick={() => move(1)}
+                    aria-label="Berikutnya"
+                    className="absolute right-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 text-[oklch(0.5_0.1_255)] shadow transition hover:bg-white hover:scale-110"
+                  >
+                    <ChevronRight className="h-5 w-5" />
+                  </button>
+                </>
+              )}
             </div>
 
             <div className="flex items-start gap-2 p-5">
               <Heart className="mt-1 h-5 w-5 shrink-0 fill-[oklch(0.7_0.17_15)] text-[oklch(0.7_0.17_15)]" />
-              <div>
+              <div className="flex-1">
                 <p className="font-sans text-xs font-semibold uppercase tracking-[0.2em] text-primary">
-                  Foto Terfavorit
+                  Foto Terfavorit{FAVORITES.length > 1 ? ` · ${i + 1}/${FAVORITES.length}` : ''}
                 </p>
                 <p className="mt-1 font-serif text-lg leading-snug text-foreground">
-                  {FAVORITE_CAPTION}
+                  {fav.caption}
                 </p>
               </div>
             </div>
