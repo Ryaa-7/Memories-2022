@@ -156,10 +156,11 @@ st.markdown("""
         font-family: 'Cormorant Garamond', serif;
         font-size: 1.9rem;
         color: #e8e2d5;
-        letter-spacing: .1em;
+        letter-spacing: .18em;
         text-align: center;
-        margin: 2.5rem 0 1.5rem 0;
+        margin: 4.5rem 0 2.2rem 0;
         font-weight: 400;
+        position: relative;
     }
 
     .stButton>button, .stDownloadButton>button {
@@ -236,49 +237,68 @@ slides_json = json.dumps([optimized(u, 1600) for u in images])
 slideshow_html = """
 <div id="show">
   <div id="stage"></div>
+  <div id="vignette"></div>
   <div id="caption"></div>
   <div id="controls">
-    <button onclick="prev()">‹</button>
-    <button onclick="toggle()" id="pp">❚❚</button>
-    <button onclick="next()">›</button>
-    <button onclick="fs()">⛶</button>
+    <button onclick="prev()">&#8249;</button>
+    <button onclick="toggle()" id="pp">&#10074;&#10074;</button>
+    <button onclick="next()">&#8250;</button>
+    <button onclick="fs()">&#9974;</button>
   </div>
+  <div id="dots"></div>
   <div id="progress"><div id="bar"></div></div>
 </div>
 <style>
   #show {
-    position: relative; width: 100%; height: 640px;
-    background:#000; border-radius: 14px; overflow: hidden;
-    box-shadow: 0 30px 80px rgba(0,0,0,.6);
+    position: relative; width: 100%; height: 660px;
+    background:#000; border-radius: 18px; overflow: hidden;
+    box-shadow: 0 40px 100px rgba(0,0,0,.7), 0 0 0 1px rgba(184,168,136,.12);
   }
   #stage { width:100%; height:100%; position:relative; }
   #stage img {
     position:absolute; top:0; left:0; width:100%; height:100%;
-    object-fit: cover; opacity:0; transition: opacity 1.6s ease;
+    object-fit: cover; opacity:0;
+    transition: opacity 1.8s cubic-bezier(.4,0,.2,1);
+    will-change: opacity, transform;
   }
-  #stage img.active { opacity:1; animation: ken 8s ease-in-out forwards; }
+  #stage img.active { opacity:1; animation: ken 9s ease-out forwards; }
   @keyframes ken {
-    0%   { transform: scale(1.0) translate(0,0); }
-    100% { transform: scale(1.15) translate(-1.5%, -1.5%); }
+    0%   { transform: scale(1.05) translate(1%, 1%); }
+    100% { transform: scale(1.18) translate(-2%, -2%); }
+  }
+  #vignette {
+    position:absolute; inset:0; pointer-events:none; z-index:2;
+    background:
+      radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.5) 100%),
+      linear-gradient(to top, rgba(0,0,0,.55), transparent 45%);
   }
   #controls {
-    position:absolute; bottom:22px; left:50%; transform:translateX(-50%);
-    display:flex; gap:14px; z-index:5;
-    background: rgba(10,10,15,.4); backdrop-filter: blur(8px);
-    padding: 8px 16px; border-radius: 40px; border:1px solid rgba(184,168,136,.25);
+    position:absolute; bottom:30px; left:50%; transform:translateX(-50%);
+    display:flex; gap:10px; z-index:6; opacity:0; transition:opacity .4s;
+    background: rgba(12,12,18,.45); backdrop-filter: blur(14px);
+    padding: 9px 14px; border-radius: 50px; border:1px solid rgba(184,168,136,.28);
   }
+  #show:hover #controls { opacity:1; }
   #controls button {
     background:transparent; border:none; color:#e8ddc5;
-    font-size: 20px; cursor:pointer; width:34px; height:34px;
-    border-radius:50%; transition: all .25s;
+    font-size: 20px; cursor:pointer; width:40px; height:40px;
+    border-radius:50%; transition: all .25s; display:flex; align-items:center; justify-content:center;
   }
-  #controls button:hover { background: rgba(184,168,136,.25); color:#fff; }
-  #progress { position:absolute; bottom:0; left:0; width:100%; height:3px; background:rgba(255,255,255,.08); z-index:4;}
-  #bar { height:100%; width:0%; background: linear-gradient(90deg,#b8a888,#e8ddc5); }
+  #controls button:hover { background: rgba(184,168,136,.28); color:#fff; transform: scale(1.12); }
+  #dots {
+    position:absolute; bottom:14px; left:50%; transform:translateX(-50%);
+    display:flex; gap:6px; z-index:5;
+  }
+  #dots span { width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,.3); transition:all .3s; }
+  #dots span.on { background:#e8ddc5; width:22px; border-radius:3px; }
+  #progress { position:absolute; top:0; left:0; width:100%; height:3px; background:rgba(255,255,255,.06); z-index:4;}
+  #bar { height:100%; width:0%; background: linear-gradient(90deg,#b8a888,#f0e6cf); box-shadow:0 0 12px rgba(184,168,136,.6); }
   #caption {
-    position:absolute; top:20px; right:24px; z-index:5;
-    font-family:'Inter',sans-serif; font-size:.75rem; letter-spacing:.15em;
-    color:#b8a888; background:rgba(10,10,15,.4); padding:4px 12px; border-radius:20px;
+    position:absolute; top:24px; left:28px; z-index:5;
+    font-family:'Inter',sans-serif; font-size:.72rem; letter-spacing:.28em;
+    color:#e8ddc5; font-weight:300;
+    background:rgba(12,12,18,.4); backdrop-filter:blur(8px);
+    padding:6px 16px; border-radius:30px; border:1px solid rgba(184,168,136,.2);
   }
 </style>
 <script>
@@ -286,30 +306,39 @@ slideshow_html = """
   const stage = document.getElementById('stage');
   const cap = document.getElementById('caption');
   const bar = document.getElementById('bar');
-  let i = 0, playing = true, timer=null, DUR=6500, t0=0;
+  const dotsBox = document.getElementById('dots');
+  let i = 0, playing = true, timer=null, DUR=6000, t0=0;
 
   imgs.forEach((src, idx) => {
     const im = document.createElement('img');
     im.src = src; if(idx===0) im.className='active';
     stage.appendChild(im);
   });
+  // dots: tampilkan maksimal ~18 titik biar tidak penuh
+  const maxDots = Math.min(imgs.length, 18);
+  for(let d=0; d<maxDots; d++){ const s=document.createElement('span'); dotsBox.appendChild(s); }
+  const dots = dotsBox.querySelectorAll('span');
+
   const els = () => stage.querySelectorAll('img');
   function render(){
-    els().forEach((im,idx)=>{ im.classList.remove('active'); if(idx===i) void im.offsetWidth, im.classList.add('active'); });
-    cap.textContent = (i+1)+' / '+imgs.length;
+    els().forEach((im,idx)=>{ im.classList.remove('active'); if(idx===i){ void im.offsetWidth; im.classList.add('active'); } });
+    cap.textContent = String(i+1).padStart(2,'0')+'  /  '+String(imgs.length).padStart(2,'0');
+    const active = Math.round((i/Math.max(1,imgs.length-1))*(maxDots-1));
+    dots.forEach((s,idx)=> s.classList.toggle('on', idx===active));
   }
   function next(){ i=(i+1)%imgs.length; render(); restart(); }
   function prev(){ i=(i-1+imgs.length)%imgs.length; render(); restart(); }
-  function toggle(){ playing=!playing; document.getElementById('pp').textContent = playing?'❚❚':'▶'; if(playing) restart(); else clearInterval(timer); }
+  function toggle(){ playing=!playing; document.getElementById('pp').innerHTML = playing?'&#10074;&#10074;':'&#9658;'; if(playing) restart(); else clearInterval(timer); }
   function restart(){ clearInterval(timer); if(!playing) return; t0=Date.now();
-    timer=setInterval(()=>{ let p=Math.min(1,(Date.now()-t0)/DUR); bar.style.width=(p*100)+'%'; if(p>=1) next(); }, 40);
+    timer=setInterval(()=>{ let p=Math.min(1,(Date.now()-t0)/DUR); bar.style.width=(p*100)+'%'; if(p>=1) next(); }, 30);
   }
   function fs(){ const e=document.getElementById('show'); if(e.requestFullscreen) e.requestFullscreen(); }
+  document.addEventListener('keydown',e=>{ if(e.key==='ArrowRight') next(); if(e.key==='ArrowLeft') prev(); });
   render(); restart();
 </script>
 """.replace("SLIDES_JSON", slides_json)
 
-components.html(slideshow_html, height=680)
+components.html(slideshow_html, height=700)
 
 
 # ------------------------------------------------------------
@@ -324,55 +353,102 @@ grid_data = json.dumps([{"t": t, "f": f} for t, f in zip(thumbs, full)])
 grid_html = """
 <div id="grid"></div>
 <div id="lightbox" onclick="closeLb()">
-  <span id="lbClose">&times;</span>
-  <img id="lbImg" onclick="event.stopPropagation()">
+  <span id="lbClose" onclick="event.stopPropagation();closeLb()">&times;</span>
+  <span id="lbPrev" onclick="event.stopPropagation();lbMove(-1)">&#8249;</span>
+  <div id="lbWrap" onclick="event.stopPropagation()">
+    <img id="lbImg">
+    <div id="lbCount"></div>
+  </div>
+  <span id="lbNext" onclick="event.stopPropagation();lbMove(1)">&#8250;</span>
 </div>
 <style>
   #grid {
-    columns: 4 240px; column-gap: 14px; padding: 4px;
+    columns: 4 260px; column-gap: 18px; padding: 6px 2px;
   }
+  @media (max-width: 640px){ #grid { columns: 2 150px; column-gap: 12px; } }
   #grid .cell {
-    break-inside: avoid; margin-bottom: 14px; position:relative;
-    border-radius: 10px; overflow:hidden; cursor:pointer;
-    opacity:0; transform: translateY(20px);
-    animation: rise .7s forwards;
+    break-inside: avoid; margin-bottom: 18px; position:relative;
+    border-radius: 14px; overflow:hidden; cursor:pointer;
+    opacity:0; transform: translateY(30px) scale(.97);
+    animation: rise .8s cubic-bezier(.2,.7,.2,1) forwards;
+    box-shadow: 0 10px 30px rgba(0,0,0,.3);
   }
-  @keyframes rise { to {opacity:1; transform:translateY(0);} }
-  #grid img { width:100%; display:block; transition: transform .7s cubic-bezier(.2,.7,.2,1), filter .5s; filter: grayscale(15%) brightness(.92);}
-  #grid .cell:hover img { transform: scale(1.09); filter: grayscale(0) brightness(1.05); }
+  @keyframes rise { to {opacity:1; transform:translateY(0) scale(1);} }
+  #grid img {
+    width:100%; display:block;
+    transition: transform .8s cubic-bezier(.2,.7,.2,1), filter .6s;
+    filter: grayscale(20%) brightness(.9) contrast(1.02);
+  }
+  #grid .cell:hover img { transform: scale(1.12); filter: grayscale(0) brightness(1.08) contrast(1.05); }
   #grid .cell::after {
-    content:''; position:absolute; inset:0;
-    background: linear-gradient(to top, rgba(184,168,136,.25), transparent 55%);
+    content:'\\2197'; position:absolute; top:12px; right:14px;
+    color:#fff; font-size:18px; opacity:0; transform:translateY(-6px);
+    transition: all .4s; z-index:2; text-shadow:0 2px 8px rgba(0,0,0,.5);
+  }
+  #grid .cell::before {
+    content:''; position:absolute; inset:0; z-index:1;
+    background: linear-gradient(to top, rgba(184,168,136,.3), transparent 50%);
     opacity:0; transition: opacity .5s;
   }
-  #grid .cell:hover::after { opacity:1; }
+  #grid .cell:hover::after { opacity:1; transform:translateY(0); }
+  #grid .cell:hover::before { opacity:1; }
+
   #lightbox {
     display:none; position:fixed; inset:0; z-index:9999;
-    background: rgba(5,5,7,.94); backdrop-filter: blur(6px);
+    background: rgba(5,5,7,.96); backdrop-filter: blur(10px);
     align-items:center; justify-content:center;
+    opacity:0; transition: opacity .35s;
   }
-  #lightbox.on { display:flex; }
-  #lbImg { max-width:92%; max-height:88%; border-radius:10px; box-shadow:0 20px 80px rgba(0,0,0,.7); animation: pop .4s ease;}
-  @keyframes pop { from{opacity:0; transform:scale(.94);} to{opacity:1; transform:scale(1);} }
-  #lbClose { position:fixed; top:20px; right:32px; color:#e8ddc5; font-size:44px; cursor:pointer; z-index:10000;}
+  #lightbox.on { display:flex; opacity:1; }
+  #lbWrap { position:relative; max-width:90%; max-height:90%; display:flex; flex-direction:column; align-items:center; }
+  #lbImg { max-width:100%; max-height:84vh; border-radius:12px; box-shadow:0 30px 100px rgba(0,0,0,.8); }
+  #lbImg.anim { animation: pop .45s cubic-bezier(.2,.7,.2,1); }
+  @keyframes pop { from{opacity:0; transform:scale(.92);} to{opacity:1; transform:scale(1);} }
+  #lbCount { margin-top:16px; font-family:'Inter',sans-serif; color:#b8a888; letter-spacing:.25em; font-size:.72rem; }
+  #lbClose { position:fixed; top:24px; right:36px; color:#e8ddc5; font-size:40px; cursor:pointer; z-index:10001; transition:transform .25s;}
+  #lbClose:hover { transform:rotate(90deg); }
+  #lbPrev, #lbNext {
+    position:fixed; top:50%; transform:translateY(-50%); z-index:10001;
+    color:#e8ddc5; font-size:56px; cursor:pointer; user-select:none;
+    width:70px; height:70px; display:flex; align-items:center; justify-content:center;
+    border-radius:50%; transition: all .25s;
+  }
+  #lbPrev { left:24px; } #lbNext { right:24px; }
+  #lbPrev:hover, #lbNext:hover { background:rgba(184,168,136,.2); transform:translateY(-50%) scale(1.1); }
+  @media (max-width:640px){ #lbPrev{left:6px;} #lbNext{right:6px;} #lbClose{right:16px;} }
 </style>
 <script>
   const data = GRID_DATA;
   const g = document.getElementById('grid');
+  let cur = 0;
   data.forEach((d,idx)=>{
     const c=document.createElement('div'); c.className='cell';
-    c.style.animationDelay=(idx*45)+'ms';
+    c.style.animationDelay=Math.min(idx*40, 1200)+'ms';
     const im=document.createElement('img'); im.src=d.t; im.loading='lazy';
-    im.onclick=()=>openLb(d.f);
+    im.onclick=()=>openLb(idx);
     c.appendChild(im); g.appendChild(c);
   });
-  function openLb(src){ document.getElementById('lbImg').src=src; document.getElementById('lightbox').classList.add('on'); }
-  function closeLb(){ document.getElementById('lightbox').classList.remove('on'); }
-  document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeLb(); });
+  const lb = document.getElementById('lightbox');
+  const lbImg = document.getElementById('lbImg');
+  const lbCount = document.getElementById('lbCount');
+  function show(){
+    lbImg.classList.remove('anim'); void lbImg.offsetWidth; lbImg.classList.add('anim');
+    lbImg.src = data[cur].f;
+    lbCount.textContent = String(cur+1).padStart(2,'0')+' / '+String(data.length).padStart(2,'0');
+  }
+  function openLb(idx){ cur=idx; lb.classList.add('on'); show(); }
+  function closeLb(){ lb.classList.remove('on'); }
+  function lbMove(dir){ cur=(cur+dir+data.length)%data.length; show(); }
+  document.addEventListener('keydown',e=>{
+    if(!lb.classList.contains('on')) return;
+    if(e.key==='Escape') closeLb();
+    if(e.key==='ArrowRight') lbMove(1);
+    if(e.key==='ArrowLeft') lbMove(-1);
+  });
 </script>
 """.replace("GRID_DATA", grid_data)
 
-grid_height = max(400, (len(images) // 4 + 1) * 220)
+grid_height = max(400, (len(images) // 4 + 1) * 240)
 components.html(grid_html, height=grid_height, scrolling=True)
 
 
