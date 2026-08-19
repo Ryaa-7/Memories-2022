@@ -8,7 +8,7 @@ import { useMemories } from '@/lib/use-memories'
 export function Hero() {
   const [offset, setOffset] = useState(0)
   const { photos } = useMemories()
-  const heroSrc = photos[0]?.src || '/memories/hero.png'
+  const heroSrc = 'https://res.cloudinary.com/e3kwzop7/image/upload/v1787128366/IMG20230529164653.jpg'
 
   useEffect(() => {
     let raf = 0
