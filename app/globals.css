@@ -154,3 +154,24 @@
 html {
   scroll-behavior: smooth;
 }
+
+/* Animasi untuk tombol kado favorit */
+@keyframes wiggle {
+  0%, 92%, 100% { transform: rotate(0deg); }
+  94% { transform: rotate(-12deg); }
+  96% { transform: rotate(12deg); }
+  98% { transform: rotate(-8deg); }
+}
+.animate-wiggle { animation: wiggle 2.6s ease-in-out infinite; }
+
+@keyframes pop {
+  from { opacity: 0; transform: scale(0.85) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.animate-pop { animation: pop 0.4s cubic-bezier(0.22, 1, 0.36, 1); }
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.animate-fade-in { animation: fade-in 0.3s ease; }

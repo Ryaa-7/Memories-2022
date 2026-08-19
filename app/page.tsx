@@ -5,6 +5,7 @@ import { MemoryGallery } from '@/components/memory-gallery'
 import { VideoSection } from '@/components/video-section'
 import { Timeline } from '@/components/timeline'
 import { FeaturedMemory } from '@/components/featured-memory'
+import { FavoriteGift } from '@/components/favorite-gift'
 import { Footer } from '@/components/footer'
 
 export default function Page() {
@@ -12,6 +13,7 @@ export default function Page() {
     <>
       <AmbientBackground />
       <Navbar />
+      <FavoriteGift />
       <main className="relative">
         <Hero />
         <MemoryGallery />
