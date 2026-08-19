@@ -102,7 +102,7 @@ def optimized(url: str, w: int = 1600) -> str:
 
 def thumb(url: str, w: int = 600) -> str:
     if "/upload/" in url:
-        return url.replace("/upload/", f"/upload/f_auto,q_auto,w_{w},c_fill,g_auto,ar_1:1/")
+        return url.replace("/upload/", f"/upload/f_auto,q_auto,w_{w}/")
     return url
 
 
@@ -378,36 +378,40 @@ grid_html = """
 </div>
 <style>
   #grid {
-    columns: 4 260px; column-gap: 18px; padding: 6px 2px;
+    columns: 4 250px; column-gap: 16px; padding: 6px 2px;
   }
+  @media (max-width: 900px){ #grid { columns: 3 180px; } }
   @media (max-width: 640px){ #grid { columns: 2 150px; column-gap: 12px; } }
   #grid .cell {
-    break-inside: avoid; margin-bottom: 18px; position:relative;
-    border-radius: 20px; overflow:hidden; cursor:pointer;
-    opacity:0; transform: translateY(34px) scale(.9) rotate(-2deg);
-    animation: rise .8s cubic-bezier(.34,1.56,.64,1) forwards;
-    box-shadow: 0 12px 30px rgba(120,160,230,.22);
+    break-inside: avoid; margin-bottom: 16px; position:relative;
+    border-radius: 18px; overflow:hidden; cursor:pointer;
+    opacity:0; transform: translateY(24px) scale(.96);
+    animation: rise .7s cubic-bezier(.22,1,.36,1) forwards;
+    box-shadow: 0 10px 28px rgba(120,160,230,.18);
     border: 3px solid #fff;
+    transition: transform .45s cubic-bezier(.22,1,.36,1), box-shadow .45s;
   }
-  @keyframes rise { to {opacity:1; transform:translateY(0) scale(1) rotate(0);} }
+  @keyframes rise { to {opacity:1; transform:translateY(0) scale(1);} }
+  #grid .cell:hover {
+    transform: translateY(-8px) scale(1.015);
+    box-shadow: 0 22px 48px rgba(120,160,230,.35);
+  }
   #grid img {
     width:100%; display:block;
-    transition: transform .6s cubic-bezier(.34,1.4,.64,1), filter .5s;
+    transition: transform .7s cubic-bezier(.22,1,.36,1);
   }
-  #grid .cell:hover { animation: jiggle .5s ease; }
-  @keyframes jiggle { 0%,100%{transform:rotate(0)} 25%{transform:rotate(1.5deg) scale(1.02)} 75%{transform:rotate(-1.5deg) scale(1.02)} }
-  #grid .cell:hover img { transform: scale(1.1); }
+  #grid .cell:hover img { transform: scale(1.07); }
   #grid .cell::after {
     content:'\\2661'; position:absolute; top:10px; right:14px;
-    color:#fff; font-size:22px; opacity:0; transform:scale(0) rotate(-30deg);
-    transition: all .4s cubic-bezier(.34,1.56,.64,1); z-index:2; text-shadow:0 2px 8px rgba(80,120,200,.5);
+    color:#fff; font-size:22px; opacity:0; transform:scale(.4) translateY(-4px);
+    transition: all .4s cubic-bezier(.22,1,.36,1); z-index:2; text-shadow:0 2px 10px rgba(80,120,200,.6);
   }
   #grid .cell::before {
     content:''; position:absolute; inset:0; z-index:1;
-    background: linear-gradient(to top, rgba(120,170,255,.4), transparent 55%);
+    background: linear-gradient(to top, rgba(120,170,255,.35), transparent 55%);
     opacity:0; transition: opacity .5s;
   }
-  #grid .cell:hover::after { opacity:1; transform:scale(1) rotate(0); }
+  #grid .cell:hover::after { opacity:1; transform:scale(1) translateY(0); }
   #grid .cell:hover::before { opacity:1; }
 
   #lightbox {
@@ -466,11 +470,28 @@ grid_html = """
     if(e.key==='ArrowRight') lbMove(1);
     if(e.key==='ArrowLeft') lbMove(-1);
   });
+
+  // Auto-resize: lapor tinggi asli grid ke Streamlit agar tidak ada scroll dalam
+  function reportHeight(){
+    const h = document.body.scrollHeight;
+    if (window.Streamlit) { window.Streamlit.setFrameHeight(h + 20); }
+    if (window.parent) {
+      window.parent.postMessage({type:'streamlit:setFrameHeight', height: h + 20}, '*');
+    }
+  }
+  window.addEventListener('load', reportHeight);
+  window.addEventListener('resize', reportHeight);
+  // foto lazy-load selesai memuat -> tinggi berubah -> lapor ulang
+  g.querySelectorAll('img').forEach(im => im.addEventListener('load', reportHeight));
+  setInterval(reportHeight, 1500);
 </script>
 """.replace("GRID_DATA", grid_data)
 
-grid_height = max(400, (len(images) // 4 + 1) * 240)
-components.html(grid_html, height=grid_height, scrolling=True)
+# Estimasi tinggi awal untuk masonry (foto tinggi bervariasi, ~4 kolom).
+# Auto-resize di atas akan menyesuaikan setelah foto termuat.
+est_rows = (len(images) + 3) // 4
+grid_height = max(600, est_rows * 300)
+components.html(grid_html, height=grid_height, scrolling=False)
 
 
 # ------------------------------------------------------------
