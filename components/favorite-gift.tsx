@@ -14,6 +14,18 @@ const FAVORITES = [
     src: 'https://res.cloudinary.com/e3kwzop7/image/upload/v1787142300/WhatsApp_Image_2026-08-19_at_19.20.55.jpg',
     caption: 'Lawrens Ngorok di kelas',
   },
+  {
+  src: 'https://res.cloudinary.com/e3kwzop7/image/upload/v1787128367/Screenshot_2023-03-15_222738.png',
+  caption: 'Binjai Kiyowo, unchhh',
+},
+  {
+  src: 'https://res.cloudinary.com/e3kwzop7/image/upload/v1787143204/IMG20241105091537.jpg',
+  caption: 'Bandar wilayah Medang',https://res.cloudinary.com/e3kwzop7/image/upload/v1787143213/IMG20241105102435.jpg
+},
+   {
+  src: 'https://res.cloudinary.com/e3kwzop7/image/upload/v1787143213/IMG20241105102435.jpg',
+  caption: 'Si Paling Kurang Darah',
+},
 ]
 
 export function FavoriteGift() {
