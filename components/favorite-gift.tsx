@@ -19,7 +19,7 @@ const FAVORITES = [
   caption: 'Binjai Kiyowo, unchhh',
 },
   {
-  src: 'https://res.cloudinary.com/e3kwzop7/image/upload/v1787143204/IMG20241105091537.jpg',
+  src: 'https://res.cloudinary.com/e3kwzop7/image/upload/v1787143205/IMG20241105091539.jpg',
   caption: 'Bandar wilayah Medang',
 },
    {
