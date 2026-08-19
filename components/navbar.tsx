@@ -35,7 +35,7 @@ export function Navbar() {
       >
         <a href="#home" className="flex items-center gap-2 font-serif text-lg font-semibold text-foreground">
           <Heart className="h-5 w-5 fill-primary text-primary" />
-          <span>Our Memories</span>
+          <span>Kobokers</span>
         </a>
 
         <ul className="hidden items-center gap-1 md:flex">
