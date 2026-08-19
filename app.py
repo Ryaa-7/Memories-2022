@@ -35,51 +35,59 @@ def configure_cloudinary():
         return False
 
 
-import cloudinary.search
-
-
 @st.cache_data(ttl=300, show_spinner=False)
 def fetch_media(folder: str):
-    """Ambil foto & video dari Cloudinary.
-    Strategi: pakai Search API (paling andal untuk folder). Kalau folder kosong,
-    fallback ke SEMUA aset di akun (kecuali contoh bawaan 'samples')."""
-    images, videos = [], []
-    diag = {"method": "", "folder_count": 0, "all_count": 0, "error": ""}
+    """Ambil foto & video dari Cloudinary pakai Admin API dasar (paling andal).
+    Tarik semua aset, filter yang termasuk folder target; kalau kosong, tampilkan
+    semua kecuali contoh bawaan 'samples'."""
+    diag = {"total_images": 0, "total_videos": 0, "in_folder": 0, "error": ""}
 
-    def run_search(expr):
-        imgs, vids = [], []
-        try:
-            cursor = None
-            while True:
-                s = cloudinary.search.Search().expression(expr).max_results(500).with_field("resource_type")
-                if cursor:
-                    s = s.next_cursor(cursor)
-                res = s.execute()
-                for r in res.get("resources", []):
-                    url = r.get("secure_url", "")
-                    if r.get("resource_type") == "video":
-                        vids.append(url)
-                    else:
-                        imgs.append(url)
-                cursor = res.get("next_cursor")
-                if not cursor:
-                    break
-        except Exception as e:
-            diag["error"] = str(e)
-        return imgs, vids
+    def pull(resource_type):
+        items = []  # (public_id, asset_folder, secure_url)
+        cursor = None
+        while True:
+            kwargs = dict(type="upload", resource_type=resource_type, max_results=500)
+            if cursor:
+                kwargs["next_cursor"] = cursor
+            res = cloudinary.api.resources(**kwargs)
+            for r in res.get("resources", []):
+                items.append((
+                    r.get("public_id", ""),
+                    r.get("asset_folder", "") or r.get("folder", ""),
+                    r.get("secure_url", ""),
+                ))
+            cursor = res.get("next_cursor")
+            if not cursor:
+                break
+        return items
 
-    # 1) Cari di dalam folder (asset_folder ATAU public_id prefix)
-    expr_folder = f'asset_folder="{folder}" OR asset_folder="{folder}/*" OR public_id:{folder}/*'
-    images, videos = run_search(expr_folder)
-    diag["folder_count"] = len(images) + len(videos)
-    diag["method"] = "folder"
+    try:
+        all_img = pull("image")
+        all_vid = pull("video")
+    except Exception as e:
+        diag["error"] = str(e)
+        st.session_state["_diag"] = diag
+        return [], []
 
-    # 2) Fallback: kalau folder kosong, ambil semua kecuali samples bawaan
-    if diag["folder_count"] == 0:
-        expr_all = '-public_id:samples/* AND -folder:samples'
-        images, videos = run_search(expr_all)
-        diag["all_count"] = len(images) + len(videos)
-        diag["method"] = "all (fallback)"
+    diag["total_images"] = len(all_img)
+    diag["total_videos"] = len(all_vid)
+
+    def in_target(pid, af):
+        f = (folder or "").strip("/").lower()
+        return (af or "").strip("/").lower().startswith(f) or (pid or "").lower().startswith(f + "/")
+
+    def not_sample(pid, af):
+        return not ((pid or "").lower().startswith("samples/") or (af or "").lower() == "samples")
+
+    img_folder = [u for (p, a, u) in all_img if in_target(p, a) and u]
+    vid_folder = [u for (p, a, u) in all_vid if in_target(p, a) and u]
+    diag["in_folder"] = len(img_folder) + len(vid_folder)
+
+    if diag["in_folder"] > 0:
+        images, videos = img_folder, vid_folder
+    else:
+        images = [u for (p, a, u) in all_img if not_sample(p, a) and u]
+        videos = [u for (p, a, u) in all_vid if not_sample(p, a) and u]
 
     st.session_state["_diag"] = diag
     return images, videos
@@ -204,15 +212,17 @@ if not images and not videos:
     diag = st.session_state.get("_diag", {})
     st.code(
         "folder dicari : %s\n"
-        "ketemu di folder : %s\n"
-        "ketemu semua (fallback) : %s\n"
+        "total foto di akun : %s\n"
+        "total video di akun : %s\n"
+        "cocok dgn folder : %s\n"
         "error : %s"
-        % (CLOUD_FOLDER, diag.get("folder_count"), diag.get("all_count"),
-           diag.get("error") or "(tidak ada)"),
+        % (CLOUD_FOLDER, diag.get("total_images"), diag.get("total_videos"),
+           diag.get("in_folder"), diag.get("error") or "(tidak ada)"),
         language="text",
     )
-    st.caption("Kalau 'error' berisi pesan, kirim ke chat. Kalau semua 0 tanpa error, "
-               "berarti foto belum benar-benar ada di akun ini atau masih diproses.")
+    st.caption("Kalau 'total foto di akun' = 0 dan tidak ada error, API key benar tapi "
+               "akun terbaca kosong (cek: kredensial milik cloud yang sama dengan tempat upload). "
+               "Kalau ada 'error', kirim ke chat.")
     st.stop()
 
 
