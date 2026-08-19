@@ -20,7 +20,7 @@ const FAVORITES = [
 },
   {
   src: 'https://res.cloudinary.com/e3kwzop7/image/upload/v1787143204/IMG20241105091537.jpg',
-  caption: 'Bandar wilayah Medang',https://res.cloudinary.com/e3kwzop7/image/upload/v1787143213/IMG20241105102435.jpg
+  caption: 'Bandar wilayah Medang',
 },
    {
   src: 'https://res.cloudinary.com/e3kwzop7/image/upload/v1787143213/IMG20241105102435.jpg',
