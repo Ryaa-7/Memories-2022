@@ -158,7 +158,7 @@ export const timeline: TimelineEntry[] = [
   },
   {
     year: '2025',
-    title: 'TURU',
+    title: 'APAAN INI',
     description: 'The days we will tell stories about for years.',
   },
   {
